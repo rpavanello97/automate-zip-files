@@ -2,44 +2,57 @@
 
 const path = require('path');
 const fs = require('fs');
+const { readdir } = require('fs').promises;
 var JSZip = require("jszip");
 
-const directoryPath = path.join(__dirname, 'files');
-const resultPath = path.join(__dirname, 'result');
-const chunkSize = 100;
+(() => {
+    const directoryPath = path.join(__dirname, 'files-old');
+    const resultPath = path.join(__dirname, 'result');
+    const chunkSize = 10;
 
-function readFiles() {
-    fs.readdir(directoryPath, (err, files) => {
+    /** Function to get all files from a folder and handle it */
+    async function readFiles() {
+        try {
+            const files = await readdir(directoryPath);
 
-        /** Handling error  */
-        if (err) {
-            return console.log('Unable to scan directory: ' + err);
+            var index = 0;
+            for (let i = 0; i < files.length; i += chunkSize) {
+                const chunk = files.slice(i, i + chunkSize);
+                index++;
+                await generateZip(chunk, resultPath, index)
+                    .then(console.log)
+                    .catch(console.log)
+            }
+            return 'Completed'
+        } catch (err) {
+            throw `From readFiles function: \n${err}`;
         }
+    }
 
-        /** Generate zip with a specified length */
-        var index = 0;
-        for (let i = 0; i < files.length; i += chunkSize) {
-            const chunk = files.slice(i, i + chunkSize);            
-            index++;
-            generateZip(chunk, resultPath, index);
-        }
-    });
-}
+    /** Function to zip an array of files into a folder */
+    function generateZip(files, destinationPath, index) {
+        const zip = new JSZip();
 
-function generateZip(files, destinationPath, index) {
-    const zip = new JSZip();
+        return new Promise((resolve, reject) => {
+            try {
+                files.forEach(function (file) {
+                    const fileData = fs.readFileSync(path.join(directoryPath, file));
+                    zip.file(file, fileData);
+                });
 
-    files.forEach(function (file) {
-        const fileData = fs.readFileSync(path.join(directoryPath, file));
-        zip.file(file, fileData);
-    });
-
-    zip.generateNodeStream({ type: 'nodebuffer', streamFiles: true })
-        .pipe(fs.createWriteStream(path.join(destinationPath, `${index}.zip`)))
-        .on('finish', () => {
-            console.log(`${index}.zip written`);
+                zip.generateNodeStream({ type: 'nodebuffer', streamFiles: true })
+                    .pipe(fs.createWriteStream(path.join(destinationPath, `${index}.zip`)))
+                    .on('finish', () => {
+                        resolve(`${index}.zip written`);
+                    });
+            } catch (err) {
+                reject(`From generateZip function: \n${err}`)
+            }
         });
-}
+    }
 
-/** Execute */
-readFiles();
+    /** Execute */
+    readFiles()
+        .then(msg => console.log(msg))
+        .catch(err => console.log(err))
+})();
