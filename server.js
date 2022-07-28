@@ -6,9 +6,16 @@ const { readdir } = require('fs').promises;
 var JSZip = require("jszip");
 
 (() => {
-    const directoryPath = path.join(__dirname, 'files-old');
-    const resultPath = path.join(__dirname, 'result');
-    const chunkSize = 10;
+    function getParameters(string) {
+        return new Promise(resolve => {
+            process.stdout.write(string);
+            process.stdin.on('data', data => {
+                const name = data.toString().trim();
+                resolve(name)
+            });
+        });
+    }
+
 
     /** Function to get all files from a folder and handle it */
     async function readFiles() {
@@ -52,7 +59,26 @@ var JSZip = require("jszip");
     }
 
     /** Execute */
-    readFiles()
-        .then(msg => console.log(msg))
-        .catch(err => console.log(err))
+    let directoryPath = '';
+    let resultPath = '';
+    let chunkSize = null;
+
+    getParameters('Digite o diretório de origem dos arquivos: ')
+        .then(value => {
+            directoryPath = value;
+            getParameters('Digite o diretório de destino dos arquivos: ')
+                .then(value => {
+                    resultPath = value
+                    getParameters('Digite a quantidade de arquivos por zip: ')
+                        .then(value => {
+                            chunkSize = Number(value);
+                            readFiles()
+                                .then(msg => {
+                                    console.log(msg)
+                                    process.exit();
+                                })
+                                .catch(err => console.log(err))
+                        })
+                })
+        })
 })();
