@@ -51,7 +51,7 @@ var JSZip = require("jszip");
     }
 
     /** Function to get all files from a folder and handle it */
-    async function readFiles() {
+    async function readFiles(directoryPath, chunkSize, resultPath) {
         try {
             const files = await readdir(directoryPath);
 
@@ -62,7 +62,7 @@ var JSZip = require("jszip");
             for (let i = 0; i < files.length; i += chunkSize) {
                 const chunk = files.slice(i, i + chunkSize);
                 index++;
-                await generateZip(chunk, resultPath, index)
+                await generateZip(chunk, resultPath, index, directoryPath)
                     .then(console.log)
                     .catch(console.log)
             }
@@ -73,7 +73,7 @@ var JSZip = require("jszip");
     }
 
     /** Function to zip an array of files into a folder */
-    function generateZip(files, destinationPath, index) {
+    function generateZip(files, destinationPath, index, directoryPath) {
         const zip = new JSZip();
 
         return new Promise((resolve, reject) => {
@@ -97,7 +97,7 @@ var JSZip = require("jszip");
     /** Execute */
     getAllParameters(parameters)
         .then(() => {
-            readFiles()
+            readFiles(directoryPath, chunkSize, resultPath)
                 .then(msg => {
                     console.log(msg);
                     process.exit();
