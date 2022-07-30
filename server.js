@@ -6,7 +6,27 @@ const { readdir } = require('fs').promises;
 var JSZip = require("jszip");
 
 (() => {
-    function getParameters(string) {
+    /** Declaring  */
+    let directoryPath = '';
+    let resultPath = '';
+    let chunkSize = null;
+    let parameters = [
+        {
+            question: 'Digite o diretório de origem dos arquivos :',
+            assignValue: (value) => { directoryPath = value }
+        },
+        {
+            question: 'Digite o diretório de destino dos arquivos :',
+            assignValue: (value) => { resultPath = value }
+        },
+        {
+            question: 'Digite a quantidade de arquivos por zip :',
+            assignValue: (value) => { chunkSize = Number(value) }
+        }
+    ]
+
+    /** Function to get parameter from console */
+    function getParameter(string) {
         return new Promise(resolve => {
             process.stdout.write(string);
             process.stdin.on('data', data => {
@@ -16,11 +36,27 @@ var JSZip = require("jszip");
         });
     }
 
+    /** Function to get all parameters from a array */
+    async function getAllParameters(arr) {
+        try {
+            for (let a of arr) {
+                await getParameter(a.question)
+                    .then(a.assignValue)
+            }
+            console.log('\n');
+            return
+        } catch (e) {
+            throw `From get all parame function: \n${err}`
+        }
+    }
 
     /** Function to get all files from a folder and handle it */
     async function readFiles() {
         try {
             const files = await readdir(directoryPath);
+
+            if (files.length < 1) throw `Diretório indicado não contem arquivos`;
+            if (chunkSize == 0) throw `Quantidade de arquivos por zip não pode ser 0`
 
             var index = 0;
             for (let i = 0; i < files.length; i += chunkSize) {
@@ -30,9 +66,9 @@ var JSZip = require("jszip");
                     .then(console.log)
                     .catch(console.log)
             }
-            return 'Completed'
+            return '\nAll file has been zipped !!!'
         } catch (err) {
-            throw `From readFiles function: \n${err}`;
+            throw `From read files function: \n${err}`;
         }
     }
 
@@ -53,32 +89,22 @@ var JSZip = require("jszip");
                         resolve(`${index}.zip written`);
                     });
             } catch (err) {
-                reject(`From generateZip function: \n${err}`)
+                reject(`From generate zip function: \n${err}`)
             }
         });
     }
 
     /** Execute */
-    let directoryPath = '';
-    let resultPath = '';
-    let chunkSize = null;
-
-    getParameters('Digite o diretório de origem dos arquivos: ')
-        .then(value => {
-            directoryPath = value;
-            getParameters('Digite o diretório de destino dos arquivos: ')
-                .then(value => {
-                    resultPath = value
-                    getParameters('Digite a quantidade de arquivos por zip: ')
-                        .then(value => {
-                            chunkSize = Number(value);
-                            readFiles()
-                                .then(msg => {
-                                    console.log(msg)
-                                    process.exit();
-                                })
-                                .catch(err => console.log(err))
-                        })
+    getAllParameters(parameters)
+        .then(() => {
+            readFiles()
+                .then(msg => {
+                    console.log(msg);
+                    process.exit();
                 })
-        })
+                .catch(err => {
+                    console.log(err);
+                    process.exit();
+                })
+        });
 })();
