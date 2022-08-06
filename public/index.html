@@ -5,12 +5,16 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="style.css">
+
+    <link href='https://fonts.googleapis.com/css?family=Comfortaa' rel='stylesheet'>
+    <link rel="stylesheet" href="style.css">    
+
+    <script defer src="./index.js"></script>
     <title>Conversor</title>
 </head>
 
 <body>
-    <form action="/index" method="post">
+    <form action="/index" method="post" id="form">
         <fieldset>
             <div class="form">
                 <div class="head">
@@ -22,25 +26,28 @@
                 
                 <div class="input-container ic1">
                     <input id="directoryPath" name="directoryPath" class="input" type="text" placeholder=" " />
+                    <div class="error"></div>
                     <div class="cut"></div>
                     <label for="directoryPath" class="placeholder">Pasta origem</label>
                 </div>
 
                 <div class="input-container ic2">
                     <input id="resultPath" name="resultPath" class="input" type="text" placeholder=" " />
+                    <div class="error"></div>
                     <div class="cut"></div>
                     <label for="resultPath" class="placeholder">Pasta destino</label>
                 </div>
 
                 <div class="input-container ic2">
                     <input id="chunkSize" name="chunkSize" class="input" type="text" placeholder=" " />
+                    <div class="error"></div>
                     <div class="cut cut-longer"></div>
-                    <label for="chunkSize" class="placeholder">Arquivos por pasta</>
+                    <label for="chunkSize" class="placeholder">Arquivos por pasta</label>
                 </div>
-                <button type="text" class="submit">executar</button>
+                <button type="text" class="submit">Executar</button>
             </div>
         </fieldset>
-    </form>
+    </form>    
 </body>
 
 </html>
