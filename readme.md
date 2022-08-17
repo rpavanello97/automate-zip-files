@@ -1,6 +1,5 @@
 # TO DO
  - handle nodejs return.
- - implement 'select folder functionality'.
  - dont change color to white when select value from browser historic.
  - Change button icon, hover and color.
 

@@ -22,11 +22,11 @@ app.post('/index', function (req, res) {
     convert.readFiles(directoryPath, Number(chunkSize), resultPath)
         .then(msg => {
             console.log(msg);
-            res.send(msg);
+            res.end(msg);
         })
         .catch(err => {
             console.log(err);
-            res.send(err);
+            res.end(err);
         });
 });
 
